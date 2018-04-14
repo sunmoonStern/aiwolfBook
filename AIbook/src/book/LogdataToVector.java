@@ -10,14 +10,18 @@ import java.util.List;
 
 public class LogdataToVector {
 	public static void main(String[] args){
-		(new LogdataToVector()).mainLoop();
+		String absInputDir = args[1];
+		String relOutDir = args[2];
+		(new LogdataToVector()).mainLoop(absInputDir, relOutDir);
 	}
 
-	private void mainLoop(){
-		File logdata = new File("/Users/sonodaatom/Desktop/gat");
+	private void mainLoop(String inputDirPath, String outputDirPath){
+		File logdata = new File(inputDirPath);
 		for(File dir:logdata.listFiles()){
+			if (dir.getName().toString().endsWith(".DS_Store")) continue;
 			System.out.println(dir);
 			for(File file:dir.listFiles()){
+				if (file.getName().toString().endsWith(".gz")) continue;
 				String name=file.getName();
 				List<String[]> stringList = null;
 				try {
@@ -25,7 +29,7 @@ public class LogdataToVector {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				outFile("data/"+name+".txt", toString(stringList));
+				outFile(outputDirPath+name+".txt", toString(stringList));
 			}
 		}
 	}
