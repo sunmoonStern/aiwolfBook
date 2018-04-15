@@ -21,7 +21,7 @@ public class LogdataToVector {
 			if (dir.getName().toString().endsWith(".DS_Store")) continue;
 			System.out.println(dir);
 			for(File file:dir.listFiles()){
-				if (file.getName().toString().endsWith(".gz")) continue;
+				if (!file.getName().toString().endsWith(".log")) continue;
 				String name=file.getName();
 				List<String[]> stringList = null;
 				try {
@@ -76,7 +76,8 @@ public class LogdataToVector {
 		int date =0;
 		//プレイヤーごとの特徴量
 		List<Integer[][]> infoList = new ArrayList<Integer[][]>();
-		Integer[][] info = new Integer[15][12];
+		int NFeature = 12;
+		Integer[][] info = new Integer[15][NFeature];
 		for(int i=0;i<15;i++){
 			info[i][0]=0;//人狼なら-1,人間なら1  status
 			info[i][1]=0;//生きてるなら０、死んでるなら１  status
@@ -108,9 +109,9 @@ public class LogdataToVector {
 					info[j][3]=numCoMedium;
 					info[j][11]=date;
 				}
-				Integer[][] tempInfo = new Integer[15][12];
+				Integer[][] tempInfo = new Integer[15][NFeature];
 				for(int a=0;a<15;a++){
-					for(int b=0;b<12;b++){
+					for(int b=0;b<NFeature;b++){
 						tempInfo[a][b]=info[a][b];
 					}
 				}
