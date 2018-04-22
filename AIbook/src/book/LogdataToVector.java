@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LogdataToVector {
+    int PlayerNum = 5;
 	public static void main(String[] args){
 		String absInputDir = args[1];
 		String relOutDir = args[2];
@@ -29,6 +30,7 @@ public class LogdataToVector {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				if (PlayerNum != 15) break;
 				outFile(outputDirPath+name+".txt", toString(stringList));
 			}
 		}
@@ -40,13 +42,16 @@ public class LogdataToVector {
 		FileReader filereader = new FileReader(file);
 		BufferedReader br = new BufferedReader(filereader);
 		String str;
+		int statusNumber = 0;
 		while((str = br.readLine()) != null){
 			str=str.replace(" ", ",");//スペースを,で置き換え
 			str=str.replace("Agent[", "");//Agent[をで置き換え
 			str=str.replace("]", "");//Agent[をで置き換え
 			stringList.add(str.split(","));
+			if (str.startsWith("0,status")) statusNumber += 1;
 		}
 		br.close();
+		if (statusNumber == 15) PlayerNum = 15;
 		return stringList;
 	}
 	
@@ -76,7 +81,7 @@ public class LogdataToVector {
 		int date =0;
 		//プレイヤーごとの特徴量
 		List<Integer[][]> infoList = new ArrayList<Integer[][]>();
-		int NFeature = 13;
+		int NFeature = 12; // 13;
 		Integer[][] info = new Integer[15][NFeature];
 		for(int i=0;i<15;i++){
 			info[i][0]=0;//人狼なら-1,人間なら1  status
@@ -91,7 +96,7 @@ public class LogdataToVector {
 			info[i][9]=0;//占い師で人狼判定を出した数  talk
 			info[i][10]=0;//VOTE発話から投票変更  talk & vote
 			info[i][11]=0;//日にち　すべてのプレイヤーで共通  status
-			info[i][12]=0;//襲撃されて死亡した人に票を入れていたか/死亡した人から票をもらっていたか attack(trueのときのみ公開情報なので用いる)
+			//info[i][12]=0;//襲撃されて死亡した人に票を入れていたか/死亡した人から票をもらっていたか attack(trueのときのみ公開情報なので用いる)
 		}
 		
 		int[][] infoTalkVote = new int[15][2];// talkにおける発話者ごとの投票先、日にち
@@ -196,17 +201,17 @@ public class LogdataToVector {
 				}
 			}
 
-			//ATTACKが成功していたらATTACKされたエージェントに投票したり投票されたり人にフラグを立てる
-			if(strArray[1].equals("attack")&&strArray[3].equals("true")){
-				int attackedAgtId = Integer.parseInt(strArray[2])-1;
-				for (int i=0;i<15;i++) {
-					// ATTACKされたエージェントに投票していたエージェントはあやしい
-					if (infoRealVote[i][0] == attackedAgtId) info[i][12] = 1;
-				}
-				// ATTACKされたエージェントが投票していたエージェントはあやしい
-				int votedAgtId = infoRealVote[attackedAgtId][0];
-				info[votedAgtId][12] = 1;
-			}
+//			//ATTACKが成功していたらATTACKされたエージェントに投票したり投票されたり人にフラグを立てる
+//			if(strArray[1].equals("attack")&&strArray[3].equals("true")){
+//				int attackedAgtId = Integer.parseInt(strArray[2])-1;
+//				for (int i=0;i<15;i++) {
+//					// ATTACKされたエージェントに投票していたエージェントはあやしい
+//					if (infoRealVote[i][0] == attackedAgtId) info[i][12] = 1;
+//				}
+//				// ATTACKされたエージェントが投票していたエージェントはあやしい
+//				int votedAgtId = infoRealVote[attackedAgtId][0];
+//				info[votedAgtId][12] = 1;
+//			}
 		}
 		
 		
@@ -249,9 +254,9 @@ public class LogdataToVector {
 					}else if(counter==10){
 						string += intinfo + " 11:";
 						counter++;
-					}else if(counter==11){
-						string += intinfo + " 12:";
-						counter++;
+//					}else if(counter==11){
+//						string += intinfo + " 12:";
+//						counter++;
 					}else{
 						string += intinfo;
 						counter=0;
